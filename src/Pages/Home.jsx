@@ -1,10 +1,18 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Col, Row } from 'react-bootstrap'
 import projectImage from '../Assets/Images/project.png'
 import ProjectCard from '../Components/ProjectCard'
 import { Link } from 'react-router-dom'
 
 function Home() {
+    const [loggedIn, setLoggedIn] = useState(false)
+    useEffect(() => {
+        if (sessionStorage.getItem("token")) {
+            setLoggedIn(true)
+        } else {
+            setLoggedIn(false)
+        }
+    },[])
     return (
         <>
             {/* Landing Section */}
@@ -13,7 +21,13 @@ function Home() {
                     <Col sm={12} md={6}>
                         <h1 style={{fontSize:'5rem'}}>Project Fair</h1>
                         <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quod minima quas, repellendus excepturi iusto totam nulla sapiente dolores voluptatum est, omnis, libero beatae consequatur quos velit. Laborum deleniti atque nam?</p>
-                        <Link to='/login'><button className='btn-primary p-2 '>Let's Explore</button></Link>
+                        {
+                            loggedIn ?
+                            <Link to='/dashboard'><button className='btn-primary p-2 '>Manage your projects</button></Link>
+                            :
+                            <Link to='/login'><button className='btn-primary p-2 '>Let's Explore</button></Link>
+
+                        }
                     </Col>
                     <Col sm={12} md={6} className='d-flex justify-content-center align-items-center'>
                         <img src={projectImage} alt="Project Image" className='img-fluid mt-5 mb-2' style={{width:'400px'}} />

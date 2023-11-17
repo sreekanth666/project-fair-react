@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Col, Row, Form, Button } from 'react-bootstrap';
 import 'react-toastify/dist/ReactToastify.css';
 import { toast, ToastContainer } from 'react-toastify'
-import { registerAPI } from '../Services/allAPI';
+import { loginAPI, registerAPI } from '../Services/allAPI';
 import { useNavigate } from 'react-router-dom'
 
 function Auth({register}) {
@@ -31,11 +31,33 @@ function Auth({register}) {
             }
         }
     }
+
+    // Handle login
+    const handleLogin = async(e) => {
+        e.preventDefault()
+        const{email, password} = userData
+        console.log(email, password);
+        if (!email || !password) {
+            toast.info("Please enter username and password")
+        } else {
+            const result = await loginAPI(userData)
+            if (result.status === 200) {
+                sessionStorage.setItem("existingUser", JSON.stringify(result.data.existingUser))
+                sessionStorage.setItem("token", result.data.token)
+                setUserData({
+                    email: "",
+                    password: ""
+                })
+                navigate("/")
+            } else {
+                toast.warning(result.response.data)
+                console.log(result);
+            }
+        }
+    }
     
     // TESTS
-    // console.log(register);
-    // console.log(isRegisterForm);
-    // console.log(userData);
+
     return (
         <div className='d-flex justify-content-center align-items-center' style={{height:'100vh'}}>
             <ToastContainer />
@@ -81,14 +103,14 @@ function Auth({register}) {
                                         :
                                         <Form>
                                             <Form.Group className="mb-3" controlId="formBasicEmail">
-                                            <Form.Control type="email" placeholder="Enter email" />
+                                            <Form.Control type="email" placeholder="Enter email" onChange={(e) => setUserData({...userData, email:e.target.value})} />
                                             </Form.Group>
 
                                             <Form.Group className="mb-3" controlId="formBasicPassword">
-                                            <Form.Control type="password" placeholder="Password" />
+                                            <Form.Control type="password" placeholder="Password" onChange={(e) => setUserData({...userData, password:e.target.value})} />
                                             </Form.Group>
 
-                                            <Button variant="primary" type="submit">
+                                            <Button variant="primary" type="submit" onClick={(e) => {handleLogin(e)}}>
                                             Sign In
                                             </Button>
                                         </Form>
