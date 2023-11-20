@@ -10,7 +10,7 @@ function AddProject() {
         setShow(false);
         setProjectDetails({
             title:"",
-            language: "",
+            languages: "",
             overview: "",
             github: "",
             website: "",
@@ -33,7 +33,7 @@ function AddProject() {
     // Handle project details
     const [projectDetails, setProjectDetails] = useState({
         title:"",
-        language: "",
+        languages: "",
         overview: "",
         github: "",
         website: "",
@@ -50,28 +50,33 @@ function AddProject() {
     // Handle add project
     const handleAdd = async(e) => {
         e.preventDefault()
-        const {title, language, overview, projectImage, github, website} = projectDetails
-        if (!title || !language || !overview || !projectImage || !github || !website) {
+        const {title, languages, overview, projectImage, github, website} = projectDetails
+        if (!title || !languages || !overview || !projectImage || !github || !website) {
             toast.info("Fill all details")
         } else {
             const reqBody = new FormData()
             reqBody.append("title", title)
             reqBody.append("overview", overview)
             reqBody.append("projectImage", projectImage)
-            reqBody.append("language", language)
+            reqBody.append("languages", languages)
             reqBody.append("github", github)
             reqBody.append("website", website)
 
+            console.log(token);
             if (token) {
                 const reqHeader = {
                     "Content-Type":"multipart/form-data",
                     "Authorization":`Bearer ${token}`
                 }
                 const result = await addProjectApi(reqBody, reqHeader)
+
+                console.log(reqHeader);
                 // console.log(result);
 
-                if (result.statut === 200) {
-                    toast.success("Project added successfuly")
+                if (result.status === 200) {
+                    toast.success("Project added successful")
+                    handleClose()
+                    console.log(result);
                 }
                 else {
                     console.log(result);
@@ -107,7 +112,7 @@ function AddProject() {
                         </div>
                         <div className="col-6">
                             <input type="text" className='form-control' placeholder='Project Title' value={projectDetails.title} onChange={(e) => setProjectDetails({...projectDetails, title: e.target.value})}/>
-                            <input type="text" className='form-control mt-2' placeholder='Language Used' value={projectDetails.language} onChange={(e) => setProjectDetails({...projectDetails, language: e.target.value})}/>
+                            <input type="text" className='form-control mt-2' placeholder='Language Used' value={projectDetails.languages} onChange={(e) => setProjectDetails({...projectDetails, languages: e.target.value})}/>
                             <input type="text" className='form-control mt-2' placeholder='GitHub Link' value={projectDetails.github} onChange={(e) => setProjectDetails({...projectDetails, github: e.target.value})}/>
                             <input type="text" className='form-control mt-2' placeholder='Website Link' value={projectDetails.website} onChange={(e) => setProjectDetails({...projectDetails, website: e.target.value})}/>
                         </div>
@@ -122,7 +127,7 @@ function AddProject() {
                 <Button variant="secondary" onClick={handleClose}>
                     Close
                 </Button>
-                <Button variant="primary" onClick={handleAdd}>Understood</Button>
+                <Button variant="primary" onClick={handleAdd}>Add project</Button>
                 </Modal.Footer>
             </Modal>
         </>
