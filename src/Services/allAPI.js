@@ -22,6 +22,11 @@ export const homeProjectAPI = async() => {
 }
 
 // All project API
-export const allProjectAPI = async(reqHeader) => {
-    return await commonAPI("GET", `${base_url}/project/all`, "", reqHeader)
+export const allProjectAPI = async(searchKey, reqHeader) => {
+    return await commonAPI("GET", `${base_url}/project/all?search=${searchKey}`, "", reqHeader)
+}
+
+// User project
+export const userProjectAPI = async(reqHeader) => {
+    return await commonAPI("GET", `${base_url}/user/all-projects`, "", reqHeader)
 }

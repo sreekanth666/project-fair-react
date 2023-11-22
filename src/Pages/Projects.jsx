@@ -13,7 +13,7 @@ function Projects() {
                 "Content-Type":"application/json",
                 "Authorization": `Bearer ${token}`
             }
-            const result = await allProjectAPI(reqHeader)
+            const result = await allProjectAPI(searchKey, reqHeader)
             if (result.status === 200) {
                 setAllProject(result.data)
             } else {
@@ -23,9 +23,13 @@ function Projects() {
             console.log("Auth error");
         }
     }
+
+    const [searchKey, setSearchKey] = useState()
     useEffect(() => {
         getAllProject()
-    }, [])
+    }, [searchKey])
+
+    console.log(searchKey);
 
     console.log(allProject);
     return (
@@ -38,19 +42,23 @@ function Projects() {
                     placeholder="Search project by technology"
                     aria-label="Recipient's username"
                     aria-describedby="basic-addon2"
+                    value={searchKey}
+                    onChange={(e) => {setSearchKey(e.target.value)}}
                     />
                     <InputGroup.Text id="basic-addon2"><i class="fa-solid fa-magnifying-glass"></i></InputGroup.Text>
                 </InputGroup>
             </div>
 
-            <div className='mb-5 mt-5 row'>
-                {
-                    allProject?.length > 0 ?
-                    allProject?.map((item) => (
-                        <div className='col mb-5'><ProjectCard projectDetails={item}/></div>
-                    )):
-                    "Nothing to display"
-                }
+            <div className='container-fluid'>
+                <div className='mb-5 mt-5 row'>
+                    {
+                        allProject?.length > 0 ?
+                        allProject?.map((item) => (
+                            <div className='col-3 mb-5'><ProjectCard projectDetails={item}/></div>
+                        )):
+                        "Please login"
+                    }
+                </div>
             </div>
         </>
     )
