@@ -15,3 +15,13 @@ export const loginAPI = async(user) => {
 export const addProjectApi = async(reqBody, reqHeader) => {
     return await commonAPI("POST",`${base_url}/project/add`, reqBody, reqHeader)
 }
+
+// Home Project
+export const homeProjectAPI = async() => {
+    return await commonAPI("GET", `${base_url}/projects/home-projects`, "", "")
+}
+
+// All project API
+export const allProjectAPI = async(reqHeader) => {
+    return await commonAPI("GET", `${base_url}/project/all`, "", reqHeader)
+}
