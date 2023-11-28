@@ -1,8 +1,17 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { Navbar, Container, Nav, NavDropdown } from 'react-bootstrap'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { tokenAuthorizationContext } from '../Contexts/TokenAuth'
 
 function Header({isDashboard}) {
+    const {isAuthorized, setIsAuthorized} = useContext(tokenAuthorizationContext)
+    const navigate = useNavigate()
+    const handleLogout = () => {
+        sessionStorage.removeItem("existingUser")
+        sessionStorage.removeItem("token")
+        setIsAuthorized(false)
+        navigate('/')
+    }
     return (
         <Navbar expand="lg" style={{backgroundColor:'#004225'}}>
             <Container>
@@ -12,7 +21,7 @@ function Header({isDashboard}) {
                     isDashboard == true &&
                     <Navbar.Collapse id="basic-navbar-nav">
                         <Nav className="ms-auto">
-                            <button className='btn btn-light'>Logout</button>
+                            <button className='btn btn-light' onClick={handleLogout}>Logout</button>
                         </Nav>
                     </Navbar.Collapse>
                 }

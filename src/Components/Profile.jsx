@@ -1,9 +1,36 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useState } from 'react';
 import { Collapse } from 'react-bootstrap';
 
 function Profile() {
     const [open, setOpen] = useState(false);
+    const [userProfile, setUserProfile] = useState({
+        email: "",
+        github: "",
+        linkedin: "",
+        password: "",
+        profile: "",
+        username: ""
+    })
+    const [existingImage, setExistingImage] = useState("")
+    const [preview, setPreview] = useState("")
+
+    useEffect(() => {
+        const user = JSON.parse(sessionStorage.getItem("existingUser"))
+        if (user.profile !== "") {
+            setUserProfile({
+                ...userProfile,
+                username: user.username,
+                email: user.email,
+                password: user.password,
+                profile: "",
+                github: user.github,
+                linkedin: user.linkedin
+            })
+        } else {
+            setExistingImage("test url")
+        }
+    }, [])
     return (
         <>
             <div className="container-fluid shadow p-3">

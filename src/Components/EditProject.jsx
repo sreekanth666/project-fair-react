@@ -1,100 +1,92 @@
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
+import { editProjectAPI } from '../Services/allAPI';
+import { toast } from 'react-toastify';
 import { Modal, Button } from 'react-bootstrap';
-import { useState } from 'react';
-import { ToastContainer, toast } from 'react-toastify'
-import { addProjectApi } from '../Services/allAPI';
-import { AddProjectResponseContext } from '../Contexts/ContextShare';
+import { base_url } from '../Services/baseurl';
+import { EditProjectResponseContext } from '../Contexts/ContextShare';
 
-function AddProject() {
-    const {addProjectResponse, setAddProjectResponse} = useContext(AddProjectResponseContext)
+function EditProject({project}) {
+    const {editProjectResponse, setEditProjectResponse} = useContext(EditProjectResponseContext)
+    const [projectDetails, setProjectDetails] = useState({
+        id: project._id,
+        title: project.title,
+        languages: project.languages,
+        overview: project.overview,
+        github: project.github,
+        website: project.website,
+        projectImage: ""
+    })
+
+    const [preview, setPreview] = useState("")
     const [show, setShow] = useState(false);
+
     const handleClose = () => {
-        setShow(false);
+        setShow(false)
         setProjectDetails({
-            title:"",
-            languages: "",
-            overview: "",
-            github: "",
-            website: "",
+            id: project._id,
+            title: project.title,
+            languages: project.languages,
+            overview: project.overview,
+            github: project.github,
+            website: project.website,
             projectImage: ""
         })
-        setPreview("")
     }
     const handleShow = () => setShow(true);
 
-    const [token, setToken] = useState("")
     useEffect(() => {
-        if (sessionStorage.getItem("token")) {
-            setToken(sessionStorage.getItem("token"))
-        }
-        else {
-            setToken("")
-        }
-    },[])
-
-    // Handle project details
-    const [projectDetails, setProjectDetails] = useState({
-        title:"",
-        languages: "",
-        overview: "",
-        github: "",
-        website: "",
-        projectImage: ""
-    })
-    const [preview, setPreview] = useState("")
-
-    useEffect(() => {
-        if(projectDetails.projectImage) {
+        if (projectDetails.projectImage) {
             setPreview(URL.createObjectURL(projectDetails.projectImage))
         }
     },[projectDetails.projectImage])
 
-    // Handle add project
-    const handleAdd = async(e) => {
-        e.preventDefault()
-        const {title, languages, overview, projectImage, github, website} = projectDetails
-        if (!title || !languages || !overview || !projectImage || !github || !website) {
-            toast.info("Fill all details")
+    const handleUpdate = async() => {
+        const {id, title, languages, github, website, overview, projectImage} = projectDetails
+        if (!title || !languages || !overview || !github || !website) {
+            toast.info("Please fill the form completely")
         } else {
             const reqBody = new FormData()
             reqBody.append("title", title)
-            reqBody.append("overview", overview)
-            reqBody.append("projectImage", projectImage)
             reqBody.append("languages", languages)
+            reqBody.append("overview", overview)
             reqBody.append("github", github)
             reqBody.append("website", website)
-
-            console.log(token);
-            if (token) {
+            preview?reqBody.append("projectImage", projectImage):reqBody.append("projectImage", project.projectImage)
+            const token = sessionStorage.getItem("token")
+            if (preview) {
                 const reqHeader = {
                     "Content-Type":"multipart/form-data",
                     "Authorization":`Bearer ${token}`
                 }
-                const result = await addProjectApi(reqBody, reqHeader)
 
-                console.log(reqHeader);
-                // console.log(result);
+                const result = await editProjectAPI(id, reqBody, reqHeader)
 
                 if (result.status === 200) {
-                    toast.success("Project added successful")
+                    console.log("result.response");
                     handleClose()
-                    setAddProjectResponse(result.data)
+                    setEditProjectResponse(result.response)
+                } else {
+                    toast.error(result.response.data)
                 }
-                else {
-                    console.log(result);
+            } else {
+                const reqHeader = {
+                    "Content-Type":"application/json",
+                    "Authorization":`Bearer ${token}`
+                }
+                const result = await editProjectAPI(id, reqBody, reqHeader)
+                if (result.status === 200) {
+                    handleClose()
+                    setEditProjectResponse(result.response)
+                } else {
                     toast.error(result.response.data)
                 }
             }
         }
     }
-
-    // Test
-    // console.log(projectDetails);
+    console.log(editProjectResponse);
     return (
-        <>
-            <ToastContainer />
-            <button className='btn-info p-2' onClick={handleShow}>Add Project</button>
-
+        <div>
+            <i className="fa-solid fa-pen m-3 fs-4" onClick={() => handleShow()}></i>
             <Modal
                 show={show}
                 onHide={handleClose}
@@ -102,14 +94,14 @@ function AddProject() {
                 keyboard={false}
             >
                 <Modal.Header closeButton>
-                <Modal.Title>Add Project</Modal.Title>
+                <Modal.Title>Edit Project</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <div className="row">
                         <div className="col-6">
                             <label>
                                 <input type="file" style={{display:"none"}} onChange={(e) => setProjectDetails({...projectDetails, projectImage: e.target.files[0]})} />
-                                <img src={preview?preview:"https://getuikit.com/v2/docs/images/placeholder_600x400.svg"} alt="" className='img-fluid'/>
+                                <img src={preview?preview:`${base_url}/uploads/${project.projectImage}`} alt="" className='img-fluid'/>
                             </label>
                         </div>
                         <div className="col-6">
@@ -129,11 +121,14 @@ function AddProject() {
                 <Button variant="secondary" onClick={handleClose}>
                     Close
                 </Button>
-                <Button variant="primary" onClick={handleAdd}>Add project</Button>
+                <Button variant="primary" onClick={handleUpdate}>Add project</Button>
                 </Modal.Footer>
             </Modal>
-        </>
+        </div>
     )
 }
 
-export default AddProject
+export default EditProject
+
+// INPUT onchange={e => setProjectDetails({...projectDetails, projectImage:e.target.files[0]})}
+// IMG SRC src={preview?preview:`${BASE_URL}/uploads/${project.projectImage}}
